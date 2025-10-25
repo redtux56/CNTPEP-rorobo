@@ -82,7 +82,7 @@ def _sanitize_filename(name: str) -> str:
 def _has_existing_par_pdf_for_idx(pdf_dir: str, idx_etud: int) -> bool:
     """
     Skip robuste: si n'importe quel fichier correspondant au motif
-    ^{idx:04d}-par-.*\.pdf (insensible à la casse) existe dans le dossier PDF, on considère que c'est déjà fait.
+    ^{idx:04d}-par-.pdf (insensible à la casse) existe dans le dossier PDF, on considère que c'est déjà fait.
     """
     prefix = f"{idx_etud:04d}-par-"
     try:

@@ -161,7 +161,96 @@ class CommuneIndex:
         raise last_err or RuntimeError("Impossible de lire le CSV des communes.")
 
     def search(self, q: str, limit: int = 20) -> List[Dict[str, str]]:
+
+        """Recherche communes sans coupe arbitraire.
+
+        - 5 chiffres : priorité au code INSEE exact, puis préfixe.
+
+        - Sinon tri par nom : exact > mot unique au début > préfixe > sous-chaîne (par position).
+
+        - `limit` n'est appliqué que s'il est > 0.
+
+        """
+
         qn = _normalize(q)
+
+        if not qn:
+
+            return []
+
+        # 1) INSEE
+
+        if re.fullmatch(r"\d{5}", qn):
+
+            exact_hits = [it for it in self.items if str(it.get("code", "")) == qn]
+
+            if exact_hits:
+
+                exact_hits.sort(key=lambda it: it.get("name", ""))
+
+                return exact_hits[:limit] if (limit and limit > 0) else exact_hits
+
+            pref_hits = [it for it in self.items if str(it.get("code", "")).startswith(qn)]
+
+            if pref_hits:
+
+                pref_hits.sort(key=lambda it: (it.get("code", ""), it.get("name", "")))
+
+                return pref_hits[:limit] if (limit and limit > 0) else pref_hits
+
+        elif re.fullmatch(r"\d{2,4}", qn):
+
+            pref_hits = [it for it in self.items if str(it.get("code", "")).startswith(qn)]
+
+            if pref_hits:
+
+                pref_hits.sort(key=lambda it: (it.get("code", ""), it.get("name", "")))
+
+                return pref_hits[:limit] if (limit and limit > 0) else pref_hits
+
+    
+
+        # 2) NOM
+
+        exact, single_token_pref, prefix, substr = [], [], [], []
+
+        for it in self.items:
+
+            nm = it.get("norm", "")
+
+            if nm == qn:
+
+                exact.append(it)
+
+                continue
+
+            if nm.startswith(qn):
+
+                toks = nm.split()
+
+                if toks and toks[0] == qn and len(toks) == 1:
+
+                    single_token_pref.append(it)  # ex: 'laval' > 'laval-en-...'
+
+                else:
+
+                    prefix.append(it)
+
+                continue
+
+            pos = nm.find(qn)
+
+            if pos >= 0:
+
+                substr.append((pos, it))
+
+    
+
+        substr.sort(key=lambda t: (t[0], t[1].get("name", "")))
+
+        ordered = exact + single_token_pref + prefix + [it for _, it in substr]
+
+        return ordered[:limit] if (limit and limit > 0) else ordered
         if not qn:
             return []
         pref = [it for it in self.items if it["norm"].startswith(qn)]
