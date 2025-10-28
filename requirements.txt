@@ -1,0 +1,24 @@
+# Core data & parsing
+numpy>=1.26
+pandas>=2.2
+requests>=2.31
+beautifulsoup4>=4.12
+
+# Browser automation (DevTools PDF)
+selenium>=4.10,<5
+
+# HTML→PDF for offers (used by pepdf)
+weasyprint>=60
+
+# Excel export
+openpyxl>=3.1
+
+# PDF handling for merge step (prefer pypdf; PyPDF2 kept as fallback)
+pypdf>=4.0
+PyPDF2>=3.0
+
+# Logo resize (optional, falls back to Tk if missing)
+pillow>=10
+
+# Optional faster HTML parser for BeautifulSoup (not strictly required)
+lxml>=4.9
