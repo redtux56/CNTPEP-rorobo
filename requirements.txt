@@ -17,6 +17,9 @@ openpyxl>=3.1
 pypdf>=4.0
 PyPDF2>=3.0
 
+# PDF table generation
+reportlab>=4.4
+
 # Logo resize (optional, falls back to Tk if missing)
 pillow>=10
 
